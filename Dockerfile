@@ -24,7 +24,6 @@ ENV DUMP1090_PORT=30003 \
     TZ=UTC
 
 COPY --from=telegraf_builder /src/telegraf/telegraf /usr/local/bin/telegraf
-COPY rootfs/ /
 
 RUN set -x && \
 		apt-get update && \
@@ -54,9 +53,12 @@ RUN set -x && \
       && \
     apt-get autoremove -y && \
     apt-get clean -y && \
-	  rm -rf /src /tmp/* /var/lib/apt/lists/* && \
-    # Document versions
-		telegraf --version >> /VERSIONS && \
+	  rm -rf /src /tmp/* /var/lib/apt/lists/*
+
+COPY rootfs/ /
+
+# Document versions
+RUN telegraf --version >> /VERSIONS && \
 		/piaware2influx.py --version >> /VERSIONS && \
 		cat /VERSIONS
 
